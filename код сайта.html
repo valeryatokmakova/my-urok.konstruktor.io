@@ -1,0 +1,986 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Конструктор воспитывающего урока в начальной школе</title>
+  <style>
+    :root {
+      --primary: #0A2540;
+      --secondary: #0077B6;
+      --accent: #1A6BA3;
+      --bg: #F0F4F8;
+      --card: #FFFFFF;
+      --text: #212529;
+      --text-light: #5A6A7A;
+      --border: #D0D7E0;
+      --shadow: 0 4px 16px rgba(10, 37, 64, 0.08);
+      --transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+      min-height: 100vh;
+    }
+
+    /* HEADER */
+    header {
+      background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+      color: white;
+      padding: 1.2rem 2rem;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      box-shadow: var(--shadow);
+      display: none;
+    }
+    header h1 { font-size: 1.3rem; font-weight: 700; }
+    header p { font-size: 0.8rem; opacity: 0.85; margin-top: 0.1rem; }
+    .progress-container {
+      background: rgba(255,255,255,0.2);
+      height: 4px;
+      width: 100%;
+      margin-top: 0.8rem;
+      border-radius: 2px;
+      overflow: hidden;
+    }
+    .progress-bar {
+      height: 100%;
+      background: var(--accent);
+      width: 0%;
+      transition: width 0.4s ease;
+    }
+
+    /* LAYOUT */
+    .app-container {
+      display: none;
+      grid-template-columns: 260px 1fr;
+      min-height: calc(100vh - 70px);
+    }
+
+    /* SIDEBAR */
+    .sidebar {
+      background: var(--card);
+      border-right: 1px solid var(--border);
+      padding: 1rem 0;
+      position: sticky;
+      top: 70px;
+      height: calc(100vh - 70px);
+      overflow-y: auto;
+    }
+    .menu-title {
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: var(--text-light);
+      padding: 0 1.5rem 0.5rem;
+      font-weight: 600;
+    }
+    .nav-list { list-style: none; }
+    .nav-item {
+      padding: 0.7rem 1.5rem;
+      cursor: pointer;
+      border-left: 3px solid transparent;
+      font-size: 0.85rem;
+      transition: var(--transition);
+      color: var(--text-light);
+    }
+    .nav-item:hover { background: #f8fafc; color: var(--secondary); }
+    .nav-item.active {
+      border-left-color: var(--accent);
+      background: #f0f7ff;
+      color: var(--primary);
+      font-weight: 600;
+    }
+    .nav-block-label {
+      padding: 0.4rem 1.5rem 0.2rem;
+      font-size: 0.65rem;
+      text-transform: uppercase;
+      color: var(--secondary);
+      font-weight: 700;
+      margin-top: 0.3rem;
+      opacity: 0.8;
+    }
+
+    /* MAIN */
+    main {
+      padding: 2rem;
+      max-width: 920px;
+      margin: 0 auto;
+      width: 100%;
+    }
+
+    .step {
+      display: none;
+      opacity: 0;
+      transform: translateY(15px);
+      transition: opacity 0.4s ease, transform 0.4s ease;
+    }
+    .step.active {
+      display: block;
+      opacity: 1;
+      transform: translateY(0);
+      animation: fadeInUp 0.45s ease forwards;
+    }
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(12px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .card {
+      background: var(--card);
+      border-radius: 12px;
+      padding: 1.8rem;
+      box-shadow: var(--shadow);
+      margin-bottom: 1.5rem;
+      border-top: 4px solid var(--secondary);
+    }
+    .card h2 {
+      font-size: 1.35rem;
+      color: var(--primary);
+      margin-bottom: 1rem;
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+    }
+    .card h3 {
+      font-size: 1.1rem;
+      color: var(--secondary);
+      margin: 1.2rem 0 0.6rem;
+    }
+
+    ol, ul { margin-left: 1.5rem; margin-bottom: 1rem; }
+    li { margin-bottom: 0.4rem; }
+    
+    .questions {
+      background: #fdfdfd;
+      border-left: 3px solid var(--accent);
+      padding: 1rem;
+      margin: 1rem 0;
+      border-radius: 0 8px 8px 0;
+    }
+    .questions h4 { margin-bottom: 0.5rem; color: var(--primary); }
+    .questions ul { margin: 0; padding-left: 1.2rem; }
+
+    .theory {
+      background: #eef7ff;
+      border-left: 4px solid var(--secondary);
+      padding: 1rem;
+      margin: 1rem 0;
+      border-radius: 0 8px 8px 0;
+      font-style: italic;
+      color: var(--text-light);
+      font-size: 0.92rem;
+    }
+    .theory::before {
+      content: "📖 Теоретическая опора:";
+      display: block;
+      font-weight: 600;
+      font-style: normal;
+      color: var(--primary);
+      margin-bottom: 0.4rem;
+    }
+
+    .table-wrap { overflow-x: auto; margin: 1rem 0; }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.9rem;
+      background: white;
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: 0 0 0 1px var(--border);
+    }
+    th, td {
+      padding: 0.8rem;
+      text-align: left;
+      border-bottom: 1px solid var(--border);
+      vertical-align: top;
+    }
+    th {
+      background: var(--primary);
+      color: white;
+      font-weight: 600;
+    }
+    tr:last-child td { border-bottom: none; }
+    tr:nth-child(even) { background: #fafafa; }
+
+    .controls {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 2rem;
+      padding-top: 1rem;
+      border-top: 1px solid var(--border);
+    }
+    .btn {
+      padding: 0.7rem 1.5rem;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: 600;
+      transition: var(--transition);
+      font-size: 0.95rem;
+      background: #e9ecef;
+      color: var(--text);
+    }
+    .btn:hover { background: #dee2e6; transform: translateY(-1px); }
+    .btn-primary { background: var(--secondary); color: white; }
+    .btn-primary:hover { background: var(--primary); }
+    .btn-accent { background: var(--accent); color: white; }
+    .btn-accent:hover { background: #155a8a; }
+    .page-indicator { color: var(--text-light); font-weight: 500; font-size: 0.9rem; }
+
+    .highlight-box {
+      padding: 1rem;
+      background: #fff8f2;
+      border-left: 4px solid var(--accent);
+      border-radius: 0 8px 8px 0;
+      margin: 0.8rem 0;
+    }
+    .schema-box {
+      background: var(--primary);
+      color: white;
+      padding: 1.5rem;
+      border-radius: 10px;
+      margin: 1rem 0;
+      font-family: monospace;
+      line-height: 1.8;
+      text-align: center;
+      font-size: 0.9rem;
+    }
+
+    /* CHECKLIST */
+    .checklist-item { display: flex; align-items: flex-start; gap: 0.8rem; padding: 0.7rem 0; border-bottom: 1px solid var(--border); cursor: pointer; }
+    .checklist-item:last-child { border-bottom: none; }
+    .checklist-item input[type="checkbox"] { accent-color: var(--secondary); width: 1.25rem; height: 1.25rem; cursor: pointer; margin-top: 0.2rem; flex-shrink: 0; }
+    .checklist-item label { cursor: pointer; font-size: 0.95rem; line-height: 1.5; }
+    .checklist-progress { margin-top: 1rem; background: #e9ecef; border-radius: 99px; height: 8px; overflow: hidden; }
+    .checklist-progress-fill { height: 100%; background: var(--success, #198754); width: 0%; transition: width 0.4s ease; border-radius: 99px; }
+    .checklist-score { text-align: center; font-weight: 600; margin-top: 0.8rem; color: var(--text-light); font-size: 1.05rem; }
+    .checklist-complete { display: none; margin-top: 0.8rem; padding: 0.9rem; background: #d1e7dd; color: #0f5132; border-radius: 8px; text-align: center; font-weight: 600; border: 1px solid #badbcc; }
+    .checklist-complete.show { display: block; animation: fadeInUp 0.4s ease forwards; }
+
+    .dash-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 1rem;
+      margin-top: 1rem;
+    }
+    .dash-card {
+      background: #fff;
+      padding: 1.2rem;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      cursor: pointer;
+      transition: var(--transition);
+    }
+    .dash-card:hover { border-color: var(--secondary); transform: translateY(-2px); box-shadow: var(--shadow); }
+    .dash-card h4 { color: var(--primary); margin-bottom: 0.3rem; font-size: 0.95rem; }
+    .dash-card p { font-size: 0.85rem; color: var(--text-light); }
+
+    /* ========== TITLE PAGE ========== */
+    .title-page {
+      min-height: 100vh;
+      background: var(--card);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+    .title-page::before {
+      content: "";
+      position: absolute;
+      top: 0; left: 0;
+      width: 100%; height: 6px;
+      background: linear-gradient(90deg, var(--primary) 0%, var(--secondary) 50%, var(--accent) 100%);
+    }
+    .title-content {
+      flex: 1;
+      padding: 3rem 4rem;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      z-index: 1;
+    }
+    .title-header {
+      text-align: center;
+      margin-bottom: 1.2rem;
+    }
+    .title-institution {
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: var(--primary);
+      text-transform: uppercase;
+      letter-spacing: 0.3px;
+      line-height: 1.45;
+    }
+    .title-main {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+      margin: 2rem 0;
+    }
+    .title-type {
+      font-size: 1rem;
+      color: var(--text-light);
+      text-transform: uppercase;
+      letter-spacing: 2.5px;
+      margin-bottom: 0.6rem;
+      font-weight: 600;
+    }
+    .title-h1 {
+      font-size: 2.4rem;
+      font-weight: 800;
+      color: var(--primary);
+      margin: 0.8rem 0;
+      line-height: 1.25;
+      max-width: 90%;
+    }
+    .title-sub {
+      font-size: 1.1rem;
+      color: var(--secondary);
+      margin-top: 0.8rem;
+      max-width: 80%;
+      line-height: 1.5;
+      font-weight: 500;
+    }
+    .title-spec {
+      margin-top: 2rem;
+      font-size: 0.95rem;
+      color: var(--text-light);
+      font-style: italic;
+      padding-top: 1rem;
+      border-top: 1px dashed var(--border);
+      width: 75%;
+    }
+    .title-author {
+      margin-top: auto;
+      text-align: right;
+      padding-right: 0.5rem;
+      padding-bottom: 0.5rem;
+    }
+    .title-author-label { font-size: 0.85rem; color: var(--text-light); margin-bottom: 0.2rem; }
+    .title-author-name { font-size: 1.15rem; font-weight: 700; color: var(--primary); margin-bottom: 0.15rem; }
+    .title-author-details { font-size: 0.95rem; color: var(--text-light); line-height: 1.4; }
+    .title-footer {
+      text-align: center;
+      padding: 1.2rem 0 1.5rem;
+      border-top: 2px solid var(--border);
+    }
+    .title-footer-city {
+      font-size: 1.2rem;
+      font-weight: 700;
+      color: var(--accent);
+      letter-spacing: 1px;
+    }
+    .btn-enter {
+      display: block;
+      margin: 0 auto;
+      padding: 0.9rem 3rem;
+      background: linear-gradient(135deg, var(--secondary), var(--accent));
+      color: white;
+      border: none;
+      border-radius: 10px;
+      font-size: 1.1rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: var(--transition);
+      letter-spacing: 0.5px;
+    }
+    .btn-enter:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(0, 119, 182, 0.3); }
+
+    @media print {
+      body { background: #fff; padding: 0; }
+      .title-page { box-shadow: none; border-radius: 0; min-height: 100vh; }
+      .title-content { padding: 2.5cm; }
+    }
+    @media (max-width: 900px) {
+      .app-container { grid-template-columns: 1fr; }
+      .sidebar {
+        position: static;
+        height: auto;
+        border-right: none;
+        border-bottom: 1px solid var(--border);
+        padding: 0.5rem;
+        overflow-x: auto;
+        display: flex;
+        gap: 0.5rem;
+        flex-wrap: nowrap;
+      }
+      .menu-title, .nav-block-label { display: none; }
+      .nav-list { display: flex; gap: 0.3rem; padding: 0.3rem; }
+      .nav-item {
+        white-space: nowrap;
+        border-left: none;
+        border-bottom: 3px solid transparent;
+        padding: 0.5rem 0.8rem;
+        font-size: 0.8rem;
+      }
+      .nav-item.active { border-bottom-color: var(--accent); }
+      main { padding: 1.2rem; }
+      header { padding: 1rem 1.2rem; }
+      .title-content { padding: 2rem 1.5rem; }
+      .title-h1 { font-size: 1.6rem; }
+      .title-sub { max-width: 100%; }
+      .title-spec { width: 100%; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ===== TITLE PAGE ===== -->
+<div class="title-page" id="titlePage">
+  <div class="title-content">
+    <header class="title-header">
+      <div class="title-institution">Государственное бюджетное профессиональное образовательное учреждение Иркутской области<br>«Черемховский педагогический колледж»</div>
+    </header>
+
+    <main class="title-main">
+      <div class="title-type">Конструктор воспитывающего урока</div>
+      <h1 class="title-h1">КОНСТРУКТОР ВОСПИТЫВАЮЩЕГО УРОКА В НАЧАЛЬНОЙ ШКОЛЕ</h1>
+      <div class="title-sub">для педагогов начальной школы</div>
+      <div class="title-spec">Специальность: 44.02.02 Преподавание в начальных классах</div>
+    </main>
+
+    <section class="title-author">
+      <div class="title-author-label">Разработала:</div>
+      <div class="title-author-name">Токмакова Валерия Андреевна</div>
+      <div class="title-author-details">студентка 3 курса 301 группы</div>
+    </section>
+
+    <footer class="title-footer">
+      <div class="title-footer-city">Черемхово, 2026</div>
+    </footer>
+
+    <div style="text-align: center; margin-top: 1.5rem; padding-bottom: 1rem;">
+      <button class="btn-enter" onclick="enterApp()">Перейти к конструктору →</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== MAIN APPLICATION ===== -->
+<header id="appHeader">
+  <h1>🎯 Конструктор воспитывающего урока</h1>
+  <p>Проектирование урока в начальной школе (ФОП НОО / ФГОС)</p>
+  <div class="progress-container"><div class="progress-bar" id="progressBar"></div></div>
+</header>
+
+<div class="app-container" id="appContainer">
+  <nav class="sidebar">
+    <div class="menu-title">Навигация по шагам</div>
+    
+    <div class="nav-item active" data-target="step-0">🏠 Главная / Обзор</div>
+    
+    <div class="nav-block-label">Блок 1: Аналитико-целеполагающий</div>
+    <div class="nav-item" data-target="step-1">1.1. Модуль «Урок»</div>
+    <div class="nav-item" data-target="step-2">1.2. Личностные результаты</div>
+    <div class="nav-item" data-target="step-3">1.3. Диагностика потенциала</div>
+    <div class="nav-item" data-target="step-4">1.4. Формулировка задачи</div>
+    
+    <div class="nav-block-label">Блок 2: Проектно-методический</div>
+    <div class="nav-item" data-target="step-5">2.1. Тип урока и акценты</div>
+    <div class="nav-item" data-target="step-6">2.2. Методы и приёмы</div>
+    <div class="nav-item" data-target="step-7">2.3. Рефлексия и оценка</div>
+    
+    <div class="nav-block-label">Блок 3: Технологическая фиксация</div>
+    <div class="nav-item" data-target="step-8">3.1. Технологическая карта</div>
+    <div class="nav-item" data-target="step-9">10. Итог и критерии</div>
+  </nav>
+
+  <main id="appMain">
+    <!-- STEP 0: DASHBOARD -->
+    <section class="step active" id="step-0">
+      <div class="card">
+        <h2>📋 Общая структура конструктора</h2>
+        <p>Методический инструмент для проектирования урока, в котором воспитательные задачи решаются интегративно с дидактическими и развивающими на основе системно-деятельностного, личностно-ориентированного и аксиологического подходов.</p>
+        <div style="margin: 1rem 0; padding: 1rem; background: #f8f9fa; border-radius: 8px;">
+          <strong>Блок 1:</strong> Аналитико-целеполагающий (Изучение программы → Диагностика → Задача)<br>
+          <strong>Блок 2:</strong> Проектно-методический (Тип урока → Методы → Приёмы → Формы)<br>
+          <strong>Блок 3:</strong> Технологическая фиксация (Критерии → Карта → Рефлексия)
+        </div>
+        <p>Выберите шаг для начала работы или переходите последовательно с помощью кнопки «Далее».</p>
+        
+        <div class="dash-grid">
+          <div class="dash-card" onclick="goToStep(1)"><h4>📘 Шаг 1-4</h4><p>Анализ программы, диагностика потенциала, формулировка триединой задачи</p></div>
+          <div class="dash-card" onclick="goToStep(5)"><h4>🛠️ Шаг 5-7</h4><p>Выбор типа урока, подбор методов, организация рефлексии</p></div>
+          <div class="dash-card" onclick="goToStep(8)"><h4>📝 Шаг 8-9</h4><p>Интеграция в технологическую карту, итоговая схема и критерии</p></div>
+        </div>
+      </div>
+      <div class="controls">
+        <div class="page-indicator">0 / 10</div>
+        <button class="btn btn-primary" onclick="goToStep(1)">Далее →</button>
+      </div>
+    </section>
+
+    <!-- STEP 1 -->
+    <section class="step" id="step-1">
+      <div class="card">
+        <h2>🔹 Этап 1.1. Изучение модуля «Урок» в Программе воспитания</h2>
+        <h3>Алгоритм действий учителя:</h3>
+        <ol>
+          <li>Открыть локальный нормативный акт школы — Рабочую программу воспитания.</li>
+          <li>Найти инвариантный модуль «Урок» и изучить его целевые ориентиры.</li>
+          <li>Выписать ключевые направления воспитания, приоритетные для текущего года обучения (гражданское, патриотическое, духовно-нравственное, трудовое, экологическое и др.).</li>
+          <li>Определить, какие ценностные линии должны транслироваться через урочную деятельность в вашем классе.</li>
+        </ol>
+        <div class="questions">
+          <h4>❓ Вопросы-ориентиры:</h4>
+          <ul>
+            <li>Какое направление воспитания является стратегическим для моего класса в этом полугодии?</li>
+            <li>Какие ценностные ориентиры, зафиксированные в Программе, могут быть реализованы через содержание моей учебной темы?</li>
+            <li>Что именно школа ожидает от меня как учителя-предметника в части воспитательной работы?</li>
+          </ul>
+        </div>
+        <div class="theory">
+          «Модуль "Урок" методологически обязывает педагога проектировать не только предметные, но и личностные результаты через целевые ориентиры, ценностно-смысловые линии и воспитательные задачи в рамках каждого учебного часа».<br><br>
+          «Программа воспитания выполняет целеполагающую, содержательную и координирующую функции по отношению к уроку» (Методические основы ФОП НОО).
+        </div>
+      </div>
+      <div class="controls">
+        <button class="btn" onclick="goToStep(0)">← Назад</button>
+        <div class="page-indicator">1 / 10</div>
+        <button class="btn btn-primary" onclick="goToStep(2)">Далее →</button>
+      </div>
+    </section>
+
+    <!-- STEP 2 -->
+    <section class="step" id="step-2">
+      <div class="card">
+        <h2>🔹 Этап 1.2. Соотнесение с личностными результатами ФГОС НОО / ФОП НОО</h2>
+        <h3>Алгоритм действий учителя:</h3>
+        <ol>
+          <li>Обратиться к ФГОС НОО (2021) и выписать личностные результаты, соответствующие возрасту обучающихся.</li>
+          <li>Выбрать 1–2 конкретных личностных результата, которые будут формироваться на данном уроке: внутренняя позиция школьника, основы гражданской идентичности, нравственно-этическая ориентация, коммуникативная и социальная компетентность, эстетические и экологические ценности.</li>
+          <li>Сформулировать, как именно содержание урока будет способствовать достижению выбранного результата.</li>
+        </ol>
+        <div class="questions">
+          <h4>❓ Вопросы-ориентиры:</h4>
+          <ul>
+            <li>Какой личностный результат ФГОС я могу целенаправленно формировать сегодня?</li>
+            <li>Как содержание моей темы «работает» на формирование этого результата?</li>
+            <li>Что изменится в поведении, отношении или ценностных ориентациях ребёнка после этого урока?</li>
+          </ul>
+        </div>
+        <div class="theory">
+          «Личностные результаты являются прямым отражением эффективности реализации Программы воспитания. Именно в этой группе результатов фиксируется степень интериоризации (присвоения) ребенком социальных норм, ценностей и смыслов».<br><br>
+          «ФГОС НОО устанавливает универсальные учебные действия личностного характера: самоопределение, смыслообразование, нравственно-этическая ориентация».
+        </div>
+      </div>
+      <div class="controls">
+        <button class="btn" onclick="goToStep(1)">← Назад</button>
+        <div class="page-indicator">2 / 10</div>
+        <button class="btn btn-primary" onclick="goToStep(3)">Далее →</button>
+      </div>
+    </section>
+
+    <!-- STEP 3 -->
+    <section class="step" id="step-3">
+      <div class="card">
+        <h2>🔹 Этап 1.3. Диагностика воспитательного потенциала содержания учебной темы</h2>
+        <h3>Алгоритм действий учителя:</h3>
+        <ol>
+          <li>Проанализировать содержание темы урока: какие ценности, этические дилеммы, социальные ситуации в нём заложены?</li>
+          <li>Выявить «скрытый» воспитательный пласт: гуманитарные предметы (ценностное содержание текстов, исторических фактов), естественно-научный цикл (краеведческий, экологический контекст), художественно-эстетический цикл (формирование чувства прекрасного).</li>
+          <li>Определить, через какие элементы содержания можно актуализировать ценностный опыт детей.</li>
+        </ol>
+        <div class="questions">
+          <h4>❓ Вопросы-ориентиры:</h4>
+          <ul>
+            <li>Какие нравственные, гражданские, эстетические смыслы «спрятаны» в этом учебном материале?</li>
+            <li>Где в теме есть возможность для этической рефлексии, диалога, выбора?</li>
+            <li>Как связать абстрактное знание с личным опытом и ценностями ребёнка?</li>
+          </ul>
+        </div>
+        <div class="theory">
+          «Воспитательная задача не придумывается искусственно, а извлекается из самого материала».<br><br>
+          «Идея неразрывности обучения и воспитания: всякое знание, усваиваемое ребенком, проходит через его эмоционально-ценностную сферу и влияет на формирование его характера» (К.Д. Ушинский).
+        </div>
+      </div>
+      <div class="controls">
+        <button class="btn" onclick="goToStep(2)">← Назад</button>
+        <div class="page-indicator">3 / 10</div>
+        <button class="btn btn-primary" onclick="goToStep(4)">Далее →</button>
+      </div>
+    </section>
+
+    <!-- STEP 4 -->
+    <section class="step" id="step-4">
+      <div class="card">
+        <h2>🔹 Этап 1.4. Формулировка конкретной воспитательной задачи урока</h2>
+        <h3>Алгоритм действий учителя:</h3>
+        <ol>
+          <li>На основе предыдущих шагов сформулировать частную воспитательную задачу.</li>
+          <li>Проверить задачу по критериям: решается <strong>синхронно</strong> с дидактической и развивающей задачами; сформулирована в <strong>деятельностном ключе</strong>; учитывает <strong>возрастную специфику</strong>.</li>
+          <li>Записать задачу в триединстве:
+            <div class="highlight-box">
+              🎯 <strong>Дидактическая:</strong> научить...<br>
+              🧠 <strong>Развивающая:</strong> развивать...<br>
+              ❤️ <strong>Воспитательная:</strong> создать условия для формирования...
+            </div>
+          </li>
+        </ol>
+        <div class="questions">
+          <h4>❓ Вопросы-ориентиры:</h4>
+          <ul>
+            <li>Как сформулировать задачу так, чтобы она была измеримой и наблюдаемой?</li>
+            <li>Не является ли моя задача абстрактной или «приклеенной» к уроку?</li>
+            <li>Соответствует ли задача возрастным возможностям моих учеников?</li>
+          </ul>
+        </div>
+        <div class="theory">
+          «Воспитательная задача не может быть "приклеена" к уроку в конце. Она должна быть заложена в самом содержании материала, в форме организации деятельности, в стиле общения учителя».<br><br>
+          «Классическая дидактика утверждает принцип триединства задач урока. Эти задачи решаются синхронно и интегративно» (Методические основы проектирования урока по ФГОС).
+        </div>
+      </div>
+      <div class="controls">
+        <button class="btn" onclick="goToStep(3)">← Назад</button>
+        <div class="page-indicator">4 / 10</div>
+        <button class="btn btn-primary" onclick="goToStep(5)">Далее →</button>
+      </div>
+    </section>
+
+    <!-- STEP 5 -->
+    <section class="step" id="step-5">
+      <div class="card">
+        <h2>🔹 Этап 2.1. Выбор типа урока и результатов ООП</h2>
+        <h3>Соотношение типа урока и результатов освоения ООП НОО</h3>
+        <p>Выбор типа урока определяет, какие именно результаты образовательной программы будут формироваться с наибольшей эффективностью.</p>
+        
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Тип урока</th>
+                <th>Формируемые результаты освоения ООП (Личностные и Метапредметные)</th>
+                <th>Педагогические акценты (Методы воспитания)</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>Урок открытия нового знания</strong></td>
+                <td>
+                  <strong>Личностные:</strong> Смыслообразование (интерес к новому), Самоопределение (внутренняя позиция ученика).<br>
+                  <strong>Метапредметные:</strong> Познавательные УУД (поиск, анализ, логика).
+                </td>
+                <td>
+                  • Создание проблемной ситуации с этическим компонентом.<br>
+                  • Поддержка инициативы и гипотез (даже ошибочных).<br>
+                  • Диалог и сотрудничество при поиске истины.
+                </td>
+              </tr>
+              <tr>
+                <td><strong>Урок рефлексии</strong></td>
+                <td>
+                  <strong>Личностные:</strong> Нравственно-этическая ориентация (честность), Самооценка (объективность).<br>
+                  <strong>Метапредметные:</strong> Регулятивные УУД (самоконтроль, коррекция).
+                </td>
+                <td>
+                  • Взаимопроверка (развитие доверия и ответственности).<br>
+                  • Листы самооценки (осознание границ знания/незнания).<br>
+                  • «Спокойное отношение к ошибке» как шагу к знанию.
+                </td>
+              </tr>
+              <tr>
+                <td><strong>Урок систематизации знаний</strong></td>
+                <td>
+                  <strong>Личностные:</strong> Основы гражданской идентичности, Целостное мировоззрение.<br>
+                  <strong>Метапредметные:</strong> Регулятивные и Познавательные УУД (построение системы знаний).
+                </td>
+                <td>
+                  • Кластеры и интеллект-карты (видение связей между явлениями).<br>
+                  • Межпредметные связи (единство культуры и науки).<br>
+                  • Презентации проектов (уважение к чужому труду и мнению).
+                </td>
+              </tr>
+              <tr>
+                <td><strong>Урок контроля и оценки</strong></td>
+                <td>
+                  <strong>Личностные:</strong> Честность, Дисциплина, Стрессоустойчивость, Трудовое воспитание (ответственность за результат).<br>
+                  <strong>Метапредметные:</strong> Регулятивные УУД (волевая саморегуляция).
+                </td>
+                <td>
+                  • Четкая организация (дисциплина и регламент).<br>
+                  • Индивидуальная работа (личная ответственность).<br>
+                  • Критериальное оценивание (понимание объективности оценки).
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="questions">
+          <h4>❓ Вопросы-ориентиры:</h4>
+          <ul>
+            <li>Какой тип урока в наибольшей степени способствует формированию заявленных личностных результатов?</li>
+            <li>Какие метапредметные навыки (УУД) станут средством воспитания на этом уроке?</li>
+            <li>Как обеспечить, чтобы оценивание не снижало мотивацию, а формировало адекватную самооценку?</li>
+          </ul>
+        </div>
+        <div class="theory">
+          «Эффективность воспитания на уроке во многом зависит от учета его типологии. Каждый тип урока предоставляет свои возможности для решения определенных воспитательных задач и формирования конкретных групп УУД».<br><br>
+          «Урок должен быть "уроком мысли и чувства"» (В.А. Сухомлинский).
+        </div>
+      </div>
+      <div class="controls">
+        <button class="btn" onclick="goToStep(4)">← Назад</button>
+        <div class="page-indicator">5 / 10</div>
+        <button class="btn btn-primary" onclick="goToStep(6)">Далее →</button>
+      </div>
+    </section>
+
+    <!-- STEP 6 -->
+    <section class="step" id="step-6">
+      <div class="card">
+        <h2>🔹 Этап 2.2. Подбор методов, приёмов и форм организации</h2>
+        <h3>Группа 1: Методы формирования сознания и чувств</h3>
+        <div class="table-wrap">
+          <table>
+            <tr><th>Метод</th><th>Приёмы</th><th>Когда использовать</th></tr>
+            <tr><td>Этическая беседа</td><td>«Незаконченное предложение», «Что бы ты сделал на месте героя?»</td><td>При обсуждении поступков персонажей, исторических событий</td></tr>
+            <tr><td>Анализ текстов</td><td>«Чтение с остановками», «Предсказание судьбы», «Поиск скрытого смысла»</td><td>На уроках литературного чтения, окружающего мира</td></tr>
+            <tr><td>Педагогическое внушение</td><td>Интонация, мимика, эмоциональный фон, личный пример</td><td>На всех этапах для создания ценностной атмосферы</td></tr>
+          </table>
+        </div>
+
+        <h3>Группа 2: Методы организации деятельности</h3>
+        <div class="table-wrap">
+          <table>
+            <tr><th>Метод</th><th>Приёмы</th><th>Когда использовать</th></tr>
+            <tr><td>Проектная деятельность</td><td>Мини-проекты «Бережем воду», «История моей семьи»</td><td>При изучении тем, имеющих социальную значимость</td></tr>
+            <tr><td>Ролевые и деловые игры</td><td>Инсценировка, «судебное заседание», игра «Магазин»</td><td>Для моделирования социальных ситуаций, формирования эмпатии</td></tr>
+            <tr><td>Работа в группах</td><td>Распределение ролей (лидер, спикер, контролёр), взаимопроверка</td><td>При развитии коммуникативных УУД и навыков кооперации</td></tr>
+          </table>
+        </div>
+
+        <h3>Группа 3: Методы стимулирования и коррекции</h3>
+        <div class="table-wrap">
+          <table>
+            <tr><th>Метод</th><th>Приёмы</th><th>Когда использовать</th></tr>
+            <tr><td>Поощрение и порицание</td><td>«Лист успеха», «Дерево достижений», похвала за конкретный поступок</td><td>Для закрепления положительных моделей поведения</td></tr>
+            <tr><td>Ситуация успеха</td><td>Подбор заданий посильной сложности, дифференциация</td><td>Для формирования уверенности, мотивации к учению</td></tr>
+            <tr><td>Рефлексия</td><td>«Светофор», «Незаконченное предложение: Сегодня я понял, что важно быть...»</td><td>На этапе рефлексии для осмысления ценностного опыта</td></tr>
+          </table>
+        </div>
+        <div class="theory">
+          «Методы воспитания на уроке можно классифицировать по характеру воздействия: словесные, наглядные, практические, а также по источнику формирования качества: методы формирования сознания, методы организации деятельности и методы стимулирования».<br><br>
+          «Принцип "параллельного действия" А.С. Макаренко: воздействие на личность не напрямую, а через коллектив».
+        </div>
+      </div>
+      <div class="controls">
+        <button class="btn" onclick="goToStep(5)">← Назад</button>
+        <div class="page-indicator">6 / 10</div>
+        <button class="btn btn-primary" onclick="goToStep(7)">Далее →</button>
+      </div>
+    </section>
+
+    <!-- STEP 7 -->
+    <section class="step" id="step-7">
+      <div class="card">
+        <h2>🔹 Этап 2.3. Проектирование механизма рефлексии и оценки личностного результата</h2>
+        <h3>Алгоритм действий учителя:</h3>
+        <ol>
+          <li>Спланировать приёмы эмоционально-ценностной рефлексии: вербальные («Сегодня я понял, что важно быть...», «Мне было трудно, когда..., потому что...») и невербальные («Светофор», «Шкала настроения», рисунок-ассоциация).</li>
+          <li>Определить критерии оценки не только предметного результата, но и: коммуникативной культуры, ответственности, эмпатии и этического выбора.</li>
+          <li>Заложить в урок установку: <em>«Ошибка — не проступок, а шаг к истине»</em>, чтобы формировать спокойное, деловое отношение к неудачам.</li>
+        </ol>
+        <div class="questions">
+          <h4>❓ Вопросы-ориентиры:</h4>
+          <ul>
+            <li>Как я увижу, что воспитательная задача урока решена?</li>
+            <li>Какие проявления личностного результата я могу зафиксировать прямо на уроке?</li>
+            <li>Как сделать рефлексию искренней, а не формальной?</li>
+          </ul>
+        </div>
+        <div class="theory">
+          «Рефлексия: осмысление своего эмоционального состояния и поступков».<br><br>
+          «В.А. Сухомлинский: "Нет воспитания без самовоспитания". Главная задача учителя — пробудить в ребенке желание стать лучше».
+        </div>
+      </div>
+      <div class="controls">
+        <button class="btn" onclick="goToStep(6)">← Назад</button>
+        <div class="page-indicator">7 / 10</div>
+        <button class="btn btn-primary" onclick="goToStep(8)">Далее →</button>
+      </div>
+    </section>
+
+    <!-- STEP 8 -->
+    <section class="step" id="step-8">
+      <div class="card">
+        <h2>🔹 Этап 3.1. Интеграция в технологическую карту урока</h2>
+        <h3>Алгоритм действий учителя:</h3>
+        <ol>
+          <li>В разделе «Цели урока» прописать триединство задач (дидактическая, развивающая, воспитательная).</li>
+          <li>В колонке «Деятельность учителя / учеников» указать ценностно-смысловое сопровождение каждого этапа:</li>
+        </ol>
+        <div class="table-wrap">
+          <table>
+            <tr><th>Этап</th><th>Деятельность</th><th>Формируемые УУД</th><th>Воспитательный акцент</th></tr>
+            <tr><td>Мотивация</td><td>...</td><td>Личностные: смыслообразование</td><td><em>Создание ценностной рамки: «Зачем нам это знать?»</em></td></tr>
+            <tr><td>Актуализация</td><td>...</td><td>Регулятивные: целеполагание</td><td><em>Опора на личный опыт: «А как ты поступил бы?»</em></td></tr>
+            <tr><td>Открытие</td><td>...</td><td>Коммуникативные: сотрудничество</td><td><em>Формирование культуры диалога, толерантности</em></td></tr>
+            <tr><td>Рефлексия</td><td>...</td><td>Познавательные: анализ</td><td><em>Осмысление эмоционально-ценностного состояния</em></td></tr>
+          </table>
+        </div>
+        <p>В разделе «Оценивание» включить критерии личностного результата: проявил инициативу, умение аргументированно выразить позицию, проявил эмпатию/ответственность/честность в конкретной ситуации.</p>
+        <div class="theory">
+          «Программа воспитания выступает связующим звеном, обеспечивающим целостность образовательного процесса. Она не дублирует учебные предметы, а задает ценностный вектор их освоения».<br><br>
+          «Технологическая карта урока как средство реализации требований ФГОС НОО» (Методические рекомендации).
+        </div>
+      </div>
+      <div class="controls">
+        <button class="btn" onclick="goToStep(7)">← Назад</button>
+        <div class="page-indicator">8 / 10</div>
+        <button class="btn btn-primary" onclick="goToStep(9)">Далее →</button>
+      </div>
+    </section>
+
+    <!-- STEP 9 -->
+    <section class="step" id="step-9">
+      <div class="card">
+        <h2>🔄 Итоговая логическая схема конструктора</h2>
+        <div class="schema-box">
+          1. МОДУЛЬ «УРОК» Программы воспитания ↓<br>
+          2. ЛИЧНОСТНЫЕ РЕЗУЛЬТАТЫ ФГОС/ФОП ↓<br>
+          3. ВОСПИТАТЕЛЬНЫЙ ПОТЕНЦИАЛ ТЕМЫ ↓<br>
+          4. ЧАСТНАЯ ВОСПИТАТЕЛЬНАЯ ЗАДАЧА (в триединстве) ↓<br>
+          5. ТИП УРОКА + ЭТАПЫ ВСТРАИВАНИЯ ↓<br>
+          6. МЕТОДЫ/ПРИЁМЫ (сознание, деятельность, стимулирование) ↓<br>
+          7. РЕФЛЕКСИЯ И ОЦЕНКА личностного результата ↓<br>
+          8. ТЕХНОЛОГИЧЕСКАЯ КАРТА (фиксация всех элементов)
+        </div>
+
+        <h3>📌 Критерии эффективности конструктора</h3>
+        <div class="table-wrap">
+          <table>
+            <tr><th>Критерий</th><th>Индикатор достижения</th></tr>
+            <tr><td><strong>Целостность</strong></td><td>Воспитательная задача органично вплетена в логику урока, не воспринимается как «вставка»</td></tr>
+            <tr><td><strong>Измеримость</strong></td><td>Личностный результат можно наблюдать и фиксировать в ходе урока</td></tr>
+            <tr><td><strong>Возрастная адекватность</strong></td><td>Методы и приёмы соответствуют психофизиологическим особенностям 7–11 лет</td></tr>
+            <tr><td><strong>Деятельностная направленность</strong></td><td>Ценности усваиваются через действие, а не через назидание</td></tr>
+            <tr><td><strong>Технологичность</strong></td><td>Конструктор понятен, воспроизводим и может быть использован другими педагогами</td></tr>
+          </table>
+        </div>
+      </div>
+
+      <!-- CHECKLIST -->
+      <div class="card" style="border-top-color: #198754;">
+        <h2>✅ Чек-лист оценки воспитательного потенциала урока</h2>
+        <p style="margin-bottom: 1rem; color: var(--text-light);">Отметьте выполненные пункты, чтобы оценить готовность вашего урока к реализации Программы воспитания.</p>
+        
+        <div id="checklistContainer">
+          <label class="checklist-item"><input type="checkbox" class="check-item"> Модуль «Урок» в Программе воспитания изучен, определено приоритетное направление.</label>
+          <label class="checklist-item"><input type="checkbox" class="check-item"> Воспитательная задача соотнесена с конкретными личностными результатами ФГОС/ФОП НОО.</label>
+          <label class="checklist-item"><input type="checkbox" class="check-item"> Выявлен скрытый воспитательный потенциал темы (не «приклеен» искусственно).</label>
+          <label class="checklist-item"><input type="checkbox" class="check-item"> Задача сформулирована в триединстве: дидактическая, развивающая, воспитательная.</label>
+          <label class="checklist-item"><input type="checkbox" class="check-item"> Выбран тип урока, раскрывающий заявленные личностные и метапредметные результаты.</label>
+          <label class="checklist-item"><input type="checkbox" class="check-item"> Подобраны методы/приёмы, соответствующие возрасту 7–11 лет и целям воспитания.</label>
+          <label class="checklist-item"><input type="checkbox" class="check-item"> Воспитательные акценты распределены по этапам урока (мотивация → рефлексия).</label>
+          <label class="checklist-item"><input type="checkbox" class="check-item"> Запланирована эмоционально-ценностная рефлексия (словесная или невербальная).</label>
+          <label class="checklist-item"><input type="checkbox" class="check-item"> Включены критерии оценивания коммуникативных, регулятивных и личностных проявлений.</label>
+          <label class="checklist-item"><input type="checkbox" class="check-item"> Все элементы зафиксированы в технологической карте урока.</label>
+        </div>
+
+        <div class="checklist-score">Готовность урока: <span id="checkPercent">0%</span></div>
+        <div class="checklist-progress"><div class="checklist-progress-fill" id="checkProgressFill"></div></div>
+        <div class="checklist-complete" id="checkComplete">🎉 Урок полностью готов! Воспитательные задачи интегрированы в структуру занятия.</div>
+      </div>
+
+      <p style="margin-top: 1rem; padding: 1rem; background: #eef7ff; border-radius: 8px; border-left: 4px solid var(--secondary);">
+        <strong>Заключение:</strong> Данный конструктор обеспечивает методологическую целостность воспитывающего урока, где каждый элемент — от анализа Программы воспитания до рефлексии — работает на становление гармонично развитой, социально ответственной личности младшего школьника. Он превращает воспитание из декларативного требования в управляемый, проектируемый и измеряемый компонент профессиональной деятельности учителя.
+      </p>
+      <div class="controls">
+        <button class="btn" onclick="goToStep(8)">← Назад</button>
+        <div class="page-indicator">10 / 10</div>
+        <button class="btn btn-accent" onclick="goToStep(0)">🔄 В начало</button>
+      </div>
+    </section>
+  </main>
+</div>
+
+<script>
+  let currentStep = 0;
+  const totalSteps = 10;
+  const progressBar = document.getElementById('progressBar');
+  const navItems = document.querySelectorAll('.nav-item');
+
+  function enterApp() {
+    document.getElementById('titlePage').style.display = 'none';
+    document.getElementById('appHeader').style.display = 'block';
+    document.getElementById('appContainer').style.display = 'grid';
+    updateProgress();
+  }
+
+  function goToStep(step) {
+    if (step < 0 || step > totalSteps) return;
+    
+    document.getElementById(`step-${currentStep}`).classList.remove('active');
+    
+    currentStep = step;
+    document.getElementById(`step-${currentStep}`).classList.add('active');
+    
+    updateNav();
+    updateProgress();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  function updateNav() {
+    navItems.forEach(item => {
+      item.classList.remove('active');
+      const target = item.getAttribute('data-target');
+      if (target === `step-${currentStep}`) {
+        item.classList.add('active');
+        item.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      }
+    });
+  }
+
+  function updateProgress() {
+    const percent = ((currentStep) / totalSteps) * 100;
+    progressBar.style.width = `${percent}%`;
+  }
+
+  navItems.forEach(item => {
+    item.addEventListener('click', () => {
+      const target = parseInt(item.getAttribute('data-target').split('-')[1]);
+      goToStep(target);
+    });
+  });
+
+  // CHECKLIST
+  const checkboxes = document.querySelectorAll('.check-item');
+  const progressFill = document.getElementById('checkProgressFill');
+  const percentText = document.getElementById('checkPercent');
+  const completeMsg = document.getElementById('checkComplete');
+
+  function updateChecklist() {
+    const checkedCount = Array.from(checkboxes).filter(cb => cb.checked).length;
+    const total = checkboxes.length;
+    const percent = Math.round((checkedCount / total) * 100);
+    
+    progressFill.style.width = `${percent}%`;
+    percentText.textContent = `${percent}%`;
+    
+    if (percent === 100) {
+      completeMsg.classList.add('show');
+    } else {
+      completeMsg.classList.remove('show');
+    }
+  }
+
+  checkboxes.forEach(cb => {
+    cb.addEventListener('change', updateChecklist);
+  });
+
+  updateProgress();
+</script>
+
+</body>
+</html>
+
+
